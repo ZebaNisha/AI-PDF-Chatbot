@@ -1,0 +1,52 @@
+# ============================================
+# AI PDF Chatbot — Backend Dependencies
+# ============================================
+
+# --- Core Framework ---
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+pydantic==2.11.2
+pydantic-settings==2.9.1
+
+# --- Async Database ---
+sqlalchemy[asyncio]==2.0.41
+asyncpg==0.30.0
+alembic==1.15.2
+
+# --- HTTP & Middleware ---
+httpx==0.28.1
+python-multipart==0.0.20
+starlette==0.46.2
+
+# --- Security ---
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.4.0
+bcrypt==4.3.0
+
+# --- Environment & Config ---
+python-dotenv==1.1.0
+
+# --- Logging ---
+structlog==25.4.0
+
+# --- PDF Processing ---
+PyMuPDF==1.25.5
+
+# --- AI & Embeddings ---
+openai==1.82.0
+tiktoken==0.9.0
+
+# --- Vector Database ---
+qdrant-client==1.14.2
+
+# --- Task Queue ---
+celery[redis]==5.5.2
+redis==5.3.0
+
+# --- AWS S3 ---
+boto3==1.38.18
+
+# --- Testing ---
+pytest==8.3.5
+pytest-asyncio==0.26.0
+httpx==0.28.1

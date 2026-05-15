@@ -33,35 +33,35 @@
 # =========================================
 
 ## FastAPI Setup
-- [ ] Install FastAPI
-- [ ] Setup uvicorn
-- [ ] Create app entrypoint
-- [ ] Setup environment configs
-- [ ] Setup async support
-- [ ] Setup dependency injection
+- [x] Install FastAPI
+- [x] Setup uvicorn
+- [x] Create app entrypoint
+- [x] Setup environment configs
+- [x] Setup async support
+- [x] Setup dependency injection
 
 ## Logging
-- [ ] Setup structured logging
-- [ ] Setup log formatting
+- [x] Setup structured logging
+- [x] Setup log formatting
 - [ ] Setup request logging
 - [ ] Setup error logging
 
 ## Configuration
-- [ ] Create config.py
-- [ ] Load environment variables
+- [x] Create config.py
+- [x] Load environment variables
 - [ ] Setup secrets management
-- [ ] Add development config
-- [ ] Add production config
+- [x] Add development config
+- [x] Add production config
 
 ## Database Setup
 - [ ] Setup PostgreSQL
-- [ ] Setup SQLAlchemy async
-- [ ] Create DB session manager
+- [x] Setup SQLAlchemy async
+- [x] Create DB session manager
 - [ ] Setup Alembic migrations
 - [ ] Test DB connection
 
 ## Docker Setup
-- [ ] Create backend Dockerfile
+- [x] Create backend Dockerfile
 - [ ] Setup docker-compose
 - [ ] Add PostgreSQL container
 - [ ] Add Redis container
@@ -72,25 +72,25 @@
 # =========================================
 
 ## User Model
-- [ ] Create User database model
-- [ ] Create Pydantic schemas
-- [ ] Add validation rules
+- [x] Create User database model
+- [x] Create Pydantic schemas
+- [x] Add validation rules
 
 ## Authentication APIs
-- [ ] Register API
-- [ ] Login API
+- [x] Register API
+- [x] Login API
 - [ ] Logout API
 - [ ] Refresh token API
 
 ## Security
-- [ ] Setup JWT authentication
-- [ ] Setup bcrypt password hashing
-- [ ] Setup token validation
-- [ ] Setup auth middleware
+- [x] Setup JWT authentication
+- [x] Setup bcrypt password hashing
+- [x] Setup token validation
+- [x] Setup auth middleware
 - [ ] Setup role validation
 
 ## User Features
-- [ ] Get current user endpoint
+- [x] Get current user endpoint
 - [ ] Update user profile
 - [ ] Delete account
 

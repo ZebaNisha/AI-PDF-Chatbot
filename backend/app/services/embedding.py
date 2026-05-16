@@ -20,7 +20,7 @@ class EmbeddingService:
 
     _instance: Optional["EmbeddingService"] = None
     _lock = threading.Lock()
-    _model: Optional[SentenceTransformer] = None
+    _model: Optional["SentenceTransformer"] = None
 
     def __new__(cls, *args, **kwargs):
         with cls._lock:

@@ -1,3 +1,4 @@
+print("--- STARTING PYTHON PROCESS ---")
 import traceback
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -26,22 +27,29 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # 1. Initialize structured logging on startup
     setup_logging()
     logger = get_logger("app.startup")
+    print("DEBUG: Logging initialized")
     logger.info("application.startup", environment=settings.ENVIRONMENT, version=settings.APP_VERSION)
     
-    # 2. Initialize Embedding Model (Load weights and warmup)
+    # 2. Initialize Embedding Model
     try:
+        print(f"DEBUG: Loading embedding model: {settings.EMBEDDING_MODEL}")
         from app.services.embedding import EmbeddingService
         embedding_service = EmbeddingService()
         await embedding_service.initialize()
+        print("DEBUG: Embedding model ready")
         logger.info("application.embedding_model_ready")
     except Exception as e:
+        print(f"DEBUG: Embedding model failed: {e}")
         logger.error("application.embedding_model_init_failed", error=str(e))
 
     # 3. Initialize Qdrant Vector Database
     try:
+        print(f"DEBUG: Initializing Qdrant at: {settings.QDRANT_URL}")
         await init_qdrant()
+        print("DEBUG: Qdrant initialized")
         logger.info("application.qdrant_initialized")
     except Exception as e:
+        print(f"DEBUG: Qdrant failed: {e}")
         logger.error("application.qdrant_initialization_failed", error=str(e))
     
     # 4. Create Database Tables (Development only)

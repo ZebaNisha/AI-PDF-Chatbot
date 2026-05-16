@@ -18,7 +18,6 @@ from app.db.session import engine
 # Load configuration early
 settings = get_settings()
 
-@asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
     Application lifespan manager.
@@ -27,43 +26,52 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # 1. Initialize structured logging on startup
     setup_logging()
     logger = get_logger("app.startup")
-    print("DEBUG: Logging initialized")
+    print("DEBUG: Logging initialized. Starting background initialization...")
     logger.info("application.startup", environment=settings.ENVIRONMENT, version=settings.APP_VERSION)
     
-    # 2. Initialize Embedding Model
-    try:
-        print(f"DEBUG: Loading embedding model: {settings.EMBEDDING_MODEL}")
-        from app.services.embedding import EmbeddingService
-        embedding_service = EmbeddingService()
-        await embedding_service.initialize()
-        print("DEBUG: Embedding model ready")
-        logger.info("application.embedding_model_ready")
-    except Exception as e:
-        print(f"DEBUG: Embedding model failed: {e}")
-        logger.error("application.embedding_model_init_failed", error=str(e))
-
-    # 3. Initialize Qdrant Vector Database
-    try:
-        print(f"DEBUG: Initializing Qdrant at: {settings.QDRANT_URL}")
-        await init_qdrant()
-        print("DEBUG: Qdrant initialized")
-        logger.info("application.qdrant_initialized")
-    except Exception as e:
-        print(f"DEBUG: Qdrant failed: {e}")
-        logger.error("application.qdrant_initialization_failed", error=str(e))
-    
-    # 4. Create Database Tables (Development only)
-    if settings.is_development:
+    # Run heavy initialization in the background so the server can start listening immediately
+    async def initialize_services():
+        # 2. Initialize Embedding Model
         try:
-            async with engine.begin() as conn:
-                await conn.run_sync(Base.metadata.create_all)
-            logger.info("application.database_tables_created")
+            print(f"DEBUG: Background - Loading embedding model: {settings.EMBEDDING_MODEL}")
+            from app.services.embedding import EmbeddingService
+            embedding_service = EmbeddingService()
+            await embedding_service.initialize()
+            print("DEBUG: Background - Embedding model ready")
+            logger.info("application.embedding_model_ready")
         except Exception as e:
-            logger.error("application.database_table_creation_failed", error=str(e))
+            print(f"DEBUG: Background - Embedding model failed: {e}")
+            logger.error("application.embedding_model_init_failed", error=str(e))
+
+        # 3. Initialize Qdrant Vector Database
+        try:
+            print(f"DEBUG: Background - Initializing Qdrant at: {settings.QDRANT_URL}")
+            await init_qdrant()
+            print("DEBUG: Background - Qdrant initialized")
+            logger.info("application.qdrant_initialized")
+        except Exception as e:
+            print(f"DEBUG: Background - Qdrant failed: {e}")
+            logger.error("application.qdrant_initialization_failed", error=str(e))
+        
+        # 4. Create Database Tables (Development only)
+        if settings.is_development:
+            try:
+                print("DEBUG: Background - Creating database tables")
+                async with engine.begin() as conn:
+                    await conn.run_sync(Base.metadata.create_all)
+                print("DEBUG: Background - Database tables created")
+                logger.info("application.database_tables_created")
+            except Exception as e:
+                print(f"DEBUG: Background - Database failed: {e}")
+                logger.error("application.database_table_creation_failed", error=str(e))
+
+    # Trigger background initialization
+    init_task = asyncio.create_task(initialize_services())
     
-    yield  # Application runs during this yield
+    yield  # Application starts listening HERE
     
-    # Place global teardown here
+    # Cleanup
+    init_task.cancel()
     logger = get_logger("app.shutdown")
     logger.info("application.shutdown")
 

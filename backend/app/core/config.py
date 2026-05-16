@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     # --- Server ---
     HOST: str = "0.0.0.0"
     PORT: int = 8000
-    ALLOWED_ORIGINS: list[str] = Field(default=["http://localhost:3000"])
+    ALLOWED_ORIGINS: list[str] = Field(default=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001"])
 
     # --- Database (PostgreSQL) ---
     DATABASE_URL: str = ""
@@ -51,10 +51,13 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     JWT_ALGORITHM: str = "HS256"
 
-    # --- OpenAI ---
-    OPENAI_API_KEY: str = ""
-    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
-    OPENAI_CHAT_MODEL: str = "gpt-4.1"
+    # --- Groq ---
+    GROQ_API_KEY: str = ""
+    GROQ_CHAT_MODEL: str = "llama-3.3-70b-versatile"
+
+    # --- Local Embeddings ---
+    EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
+    VECTOR_DIMENSION: int = 384
 
     # --- Qdrant ---
     QDRANT_URL: str = "http://localhost:6333"
@@ -69,8 +72,24 @@ class Settings(BaseSettings):
 
     # --- PDF Processing ---
     MAX_FILE_SIZE_MB: int = 50
-    CHUNK_SIZE: int = 512
-    CHUNK_OVERLAP: int = 64
+    CHUNK_SIZE: int = 700
+    CHUNK_OVERLAP: int = 120
+
+    # --- Retrieval ---
+    RETRIEVAL_TOP_K: int = 10
+    RETRIEVAL_SCORE_THRESHOLD: float = 0.10
+    RETRIEVAL_MAX_CONTEXT_TOKENS: int = 3000
+    RETRIEVAL_MAX_CHUNKS_PER_DOC: int = 5
+    RETRIEVAL_MAX_CHUNKS_PER_PAGE: int = 3
+    RETRIEVAL_DIVERSITY_ENABLED: bool = True
+    RETRIEVAL_DEDUPLICATION_ENABLED: bool = True
+
+    # --- Chat ---
+    CHAT_MEMORY_WINDOW: int = 10
+    CHAT_MAX_RETRIEVED_CHUNKS: int = 6
+    CHAT_TOKEN_BUDGET_RESERVE: int = 500
+    CHAT_SYSTEM_PROMPT_VERSION: str = "1.0"
+    CHAT_TIMEOUT_SECONDS: int = 60
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod

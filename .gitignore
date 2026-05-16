@@ -1,24 +1,47 @@
-# Python
-__pycache__/
-*.pyc
-venv/
+# === Environment Variables & Secrets ===
 .env
+.env.*
+!.env.example
 backend/.env
-# Node
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+*.pem
+*.key
+
+# === Python & Backend ===
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+backend/uploads/
+backend/qdrant_data/
+backend/scratch_*.py
+backend/qdrant_payload.json
+backend/test_out.txt
+
+# === Node & Frontend (Next.js) ===
 node_modules/
-
-# VS Code
-.vscode/
-
-# Logs
-*.log
-
-# OS
-.DS_Store
-
-# Database
-*.db
-
-# Build
-dist/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
 build/
+dist/
+.swc/
+
+# === IDEs & OS ===
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# === Logs & Databases ===
+*.log
+*.sqlite3
+*.db

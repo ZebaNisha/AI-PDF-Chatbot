@@ -7,6 +7,7 @@ fastapi==0.115.12
 uvicorn[standard]==0.34.2
 pydantic==2.11.2
 pydantic-settings==2.9.1
+email-validator==2.2.0
 
 # --- Async Database ---
 sqlalchemy[asyncio]==2.0.41
@@ -17,6 +18,7 @@ alembic==1.15.2
 httpx==0.28.1
 python-multipart==0.0.20
 starlette==0.46.2
+sse-starlette==2.2.1
 
 # --- Security ---
 passlib[bcrypt]==1.7.4
@@ -33,7 +35,9 @@ structlog==25.4.0
 PyMuPDF==1.25.5
 
 # --- AI & Embeddings ---
-openai==1.82.0
+groq==0.18.0
+sentence-transformers>=3.3.1
+torch>=2.5.0
 tiktoken==0.9.0
 
 # --- Vector Database ---
@@ -50,3 +54,6 @@ boto3==1.38.18
 pytest==8.3.5
 pytest-asyncio==0.26.0
 httpx==0.28.1
+
+
+

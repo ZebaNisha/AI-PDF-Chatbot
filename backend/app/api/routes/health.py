@@ -4,9 +4,12 @@ from typing import Dict, Any
 
 from app.db.session import get_db, check_db_connection
 from app.core.config import get_settings
+from app.core.qdrant import check_connection as check_qdrant_connection
+from app.services.embedding import EmbeddingService
 
 router = APIRouter(prefix="/health", tags=["System"])
 settings = get_settings()
+
 
 @router.get("/")
 async def health_check() -> Dict[str, Any]:
@@ -22,6 +25,7 @@ async def health_check() -> Dict[str, Any]:
         "environment": settings.ENVIRONMENT,
     }
 
+
 @router.get("/deep")
 async def deep_health_check(db: AsyncSession = Depends(get_db)) -> Dict[str, Any]:
     """
@@ -29,20 +33,23 @@ async def deep_health_check(db: AsyncSession = Depends(get_db)) -> Dict[str, Any
     Suitable for liveness/readiness probes.
     """
     db_ok = await check_db_connection()
-    
-    # Placeholder for other checks (Redis, Qdrant, etc.)
-    # redis_ok = await check_redis_connection()
-    # qdrant_ok = await check_qdrant_connection()
-    
-    all_ok = db_ok # and redis_ok and qdrant_ok
-    
-    status_code = 200 if all_ok else 503
-    
+    qdrant_ok = await check_qdrant_connection()
+
+    # Check local embedding model status
+    embedding_service = EmbeddingService()
+    embedding_ok = embedding_service.is_ready
+
+    # Basic Groq configuration check
+    groq_ok = bool(settings.GROQ_API_KEY)
+
+    all_ok = db_ok and qdrant_ok and embedding_ok and groq_ok
+
     return {
         "status": "ok" if all_ok else "degraded",
         "services": {
             "database": "up" if db_ok else "down",
-            # "redis": "up" if redis_ok else "down",
-            # "qdrant": "up" if qdrant_ok else "down",
-        }
+            "qdrant": "up" if qdrant_ok else "down",
+            "embedding_model": "loaded" if embedding_ok else "not_ready",
+            "groq_api": "configured" if groq_ok else "unconfigured",
+        },
     }

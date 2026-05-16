@@ -7,9 +7,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
-from app.api.routes import health, auth
+from app.api.routes import auth, documents, health, chat
 from app.core.config import get_settings
 from app.core.logging import get_logger, setup_logging
+from app.core.qdrant import init_qdrant
+from app.db.base import Base
+from app.db.session import engine
 
 # Load configuration early
 settings = get_settings()
@@ -25,7 +28,30 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger = get_logger("app.startup")
     logger.info("application.startup", environment=settings.ENVIRONMENT, version=settings.APP_VERSION)
     
-    # Place global initialisations here (e.g., Redis pool, Qdrant client connection check)
+    # 2. Initialize Embedding Model (Load weights and warmup)
+    try:
+        from app.services.embedding import EmbeddingService
+        embedding_service = EmbeddingService()
+        await embedding_service.initialize()
+        logger.info("application.embedding_model_ready")
+    except Exception as e:
+        logger.error("application.embedding_model_init_failed", error=str(e))
+
+    # 3. Initialize Qdrant Vector Database
+    try:
+        await init_qdrant()
+        logger.info("application.qdrant_initialized")
+    except Exception as e:
+        logger.error("application.qdrant_initialization_failed", error=str(e))
+    
+    # 4. Create Database Tables (Development only)
+    if settings.is_development:
+        try:
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            logger.info("application.database_tables_created")
+        except Exception as e:
+            logger.error("application.database_table_creation_failed", error=str(e))
     
     yield  # Application runs during this yield
     
@@ -65,8 +91,8 @@ def create_app() -> FastAPI:
     # Register Routers
     app.include_router(health.router)
     app.include_router(auth.router)
-    # app.include_router(documents.router)
-    # app.include_router(chat.router)
+    app.include_router(documents.router)
+    app.include_router(chat.router)
 
     # -----------------------------------------------------------------------
     # Global Exception Handlers

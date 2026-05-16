@@ -25,7 +25,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose port
-EXPOSE 8000
+EXPOSE 10000
 
 # Start supervisor to run both API and Celery
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "10000"]
+CMD ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]

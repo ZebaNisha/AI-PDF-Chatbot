@@ -15,10 +15,11 @@ qdrant_client = AsyncQdrantClient(
 
 async def check_connection() -> bool:
     """
-    Health check for Qdrant database.
+    Health check for Qdrant database with timeout.
     """
     try:
-        await qdrant_client.get_collections()
+        import asyncio
+        await asyncio.wait_for(qdrant_client.get_collections(), timeout=3.0)
         return True
     except Exception as e:
         logger.error("qdrant_connection_failed", error=str(e))
@@ -81,8 +82,36 @@ async def init_qdrant():
                 collection=collection_name,
                 dimension=expected_dimension,
             )
+
+            # 4. Create Payload Indexes for security and performance
+            await qdrant_client.create_payload_index(
+                collection_name=collection_name,
+                field_name="user_id",
+                field_schema=models.PayloadSchemaType.KEYWORD,
+            )
+            await qdrant_client.create_payload_index(
+                collection_name=collection_name,
+                field_name="document_id",
+                field_schema=models.PayloadSchemaType.KEYWORD,
+            )
+            logger.info("qdrant_payload_indexes_created")
         else:
             logger.info("qdrant_collection_validated", collection=collection_name)
+            # Ensure indexes exist even on existing collections
+            try:
+                await qdrant_client.create_payload_index(
+                    collection_name=collection_name,
+                    field_name="user_id",
+                    field_schema=models.PayloadSchemaType.KEYWORD,
+                )
+                await qdrant_client.create_payload_index(
+                    collection_name=collection_name,
+                    field_name="document_id",
+                    field_schema=models.PayloadSchemaType.KEYWORD,
+                )
+            except Exception:
+                # Indexes might already exist, which is fine
+                pass
 
     except Exception as e:
         logger.error("qdrant_init_failed", error=str(e))

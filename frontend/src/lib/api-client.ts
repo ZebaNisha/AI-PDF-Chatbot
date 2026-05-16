@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG, AUTH_KEYS } from '@/config/constants';
+import { useAuthStore } from '@/store/useAuthStore';
 
 /**
  * Standardized API error structure.
@@ -43,7 +44,8 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest?.url?.includes('/login')) {
       // Future: Implement token refresh logic here
       if (typeof window !== 'undefined') {
-        localStorage.removeItem(AUTH_KEYS.ACCESS_TOKEN);
+        useAuthStore.getState().clearAuth();
+        
         // Redirect to login if not already there
         if (window.location.pathname !== '/login') {
           window.location.href = '/login';

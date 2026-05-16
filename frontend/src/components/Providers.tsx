@@ -30,7 +30,6 @@ const Providers: React.FC<Props> = ({ children }) => {
         {children}
       </AuthGuard>
       <Toaster />
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 };

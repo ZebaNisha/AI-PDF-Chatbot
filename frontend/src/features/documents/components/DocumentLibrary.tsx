@@ -1,45 +1,56 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { FileText, Trash2, Clock, CheckCircle, AlertCircle, Loader2, MoreVertical } from 'lucide-react';
+import { FileText, Trash2, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Document, DocumentStatus } from '@/types';
 import { DocumentService } from '../services/document.service';
 import { notify } from '@/lib/notifications';
 import { clsx } from 'clsx';
 
 /**
- * Status badge with stage-specific styling.
+ * Visual progress indicator for document processing stages.
  */
-const StatusBadge: React.FC<{ status: DocumentStatus }> = ({ status }) => {
+const StatusIndicator: React.FC<{ status: DocumentStatus }> = ({ status }) => {
   const config = {
-    [DocumentStatus.PENDING]: { icon: Clock, color: 'text-gray-400 bg-gray-400/10 border-gray-400/20', label: 'Queued' },
-    [DocumentStatus.UPLOADED]: { icon: Loader2, color: 'text-blue-400 bg-blue-400/10 border-blue-400/20', label: 'Uploaded' },
-    [DocumentStatus.EXTRACTING]: { icon: Loader2, color: 'text-purple-400 bg-purple-400/10 border-purple-400/20', label: 'Extracting' },
-    [DocumentStatus.CHUNKING]: { icon: Loader2, color: 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20', label: 'Chunking' },
-    [DocumentStatus.EMBEDDING]: { icon: Loader2, color: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20', label: 'Embedding' },
-    [DocumentStatus.STORING]: { icon: Loader2, color: 'text-sky-400 bg-sky-400/10 border-sky-400/20', label: 'Storing' },
-    [DocumentStatus.COMPLETED]: { icon: CheckCircle, color: 'text-green-400 bg-green-400/10 border-green-400/20', label: 'Processed' },
-    [DocumentStatus.FAILED]: { icon: AlertCircle, color: 'text-red-400 bg-red-400/10 border-red-400/20', label: 'Failed' },
+    [DocumentStatus.PENDING]: { icon: Clock, color: 'bg-gray-700', text: 'text-gray-400', label: 'In Queue', percent: 5 },
+    [DocumentStatus.UPLOADED]: { icon: Loader2, color: 'bg-blue-600', text: 'text-blue-400', label: 'Uploaded', percent: 15 },
+    [DocumentStatus.EXTRACTING]: { icon: Loader2, color: 'bg-purple-600', text: 'text-purple-400', label: 'Reading PDF...', percent: 30 },
+    [DocumentStatus.CHUNKING]: { icon: Loader2, color: 'bg-indigo-600', text: 'text-indigo-400', label: 'Dicing Content...', percent: 50 },
+    [DocumentStatus.EMBEDDING]: { icon: Loader2, color: 'bg-cyan-600', text: 'text-cyan-400', label: 'Generating AI Brain...', percent: 70 },
+    [DocumentStatus.STORING]: { icon: Loader2, color: 'bg-sky-600', text: 'text-sky-400', label: 'Storing Memories...', percent: 90 },
+    [DocumentStatus.COMPLETED]: { icon: CheckCircle, color: 'bg-green-600', text: 'text-green-400', label: 'Ready to Chat!', percent: 100 },
+    [DocumentStatus.FAILED]: { icon: AlertCircle, color: 'bg-red-600', text: 'text-red-400', label: 'Extraction Failed', percent: 100 },
   }[status];
 
   const Icon = config.icon;
+  const isProcessing = ![DocumentStatus.COMPLETED, DocumentStatus.FAILED, DocumentStatus.PENDING].includes(status);
 
   return (
-    <div className={clsx("flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border", config.color)}>
-      <Icon className={clsx("h-3 w-3", status !== DocumentStatus.COMPLETED && status !== DocumentStatus.FAILED && status !== DocumentStatus.PENDING && "animate-spin")} />
-      {config.label}
+    <div className="flex flex-col items-end gap-2 min-w-[140px]">
+      <div className="flex items-center gap-2">
+        <Icon className={clsx("h-3 w-3", config.text, isProcessing && "animate-spin")} />
+        <span className={clsx("text-[10px] font-bold uppercase tracking-wider", config.text)}>
+          {config.label}
+        </span>
+      </div>
+      <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
+        <div 
+          className={clsx("h-full transition-all duration-1000 ease-out", config.color)}
+          style={{ width: `${config.percent}%` }}
+        />
+      </div>
     </div>
   );
 };
 
-const DocumentList: React.FC = () => {
+
+const DocumentLibrary: React.FC = () => {
   const queryClient = useQueryClient();
   
   const { data: documents, isLoading } = useQuery<Document[]>({
     queryKey: ['documents'],
     queryFn: () => DocumentService.list(),
-    // Poll every 3 seconds if there are documents being processed
     refetchInterval: (query) => {
       const docs = query.state.data as Document[] | undefined;
       const isProcessing = docs?.some(d => 
@@ -99,7 +110,7 @@ const DocumentList: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <StatusBadge status={doc.status} />
+            <StatusIndicator status={doc.status} />
             
             <button
               onClick={() => {
@@ -119,4 +130,4 @@ const DocumentList: React.FC = () => {
   );
 };
 
-export default DocumentList;
+export default DocumentLibrary;

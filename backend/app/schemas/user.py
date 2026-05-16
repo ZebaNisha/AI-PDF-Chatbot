@@ -36,3 +36,11 @@ class UserResponse(UserBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+
+
+class AuthResponse(BaseModel):
+    user: UserResponse
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+

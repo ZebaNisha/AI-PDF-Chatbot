@@ -14,16 +14,31 @@ import { notify } from '@/lib/notifications';
  */
 const UploadDropzone: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState("");
   const queryClient = useQueryClient();
+
+  const FUNNY_UPLOAD_MESSAGES = [
+    "Uploading to Secure Vault...",
+    "Bribing the upload gnomes...",
+    "Compressing reality into a PDF...",
+    "Making sure the AI has its coffee...",
+    "Digitizing your thoughts...",
+    "Sending to the moon and back...",
+  ];
 
   const uploadMutation = useMutation({
     mutationFn: (file: File) => DocumentService.upload(file),
+    onMutate: () => {
+      setUploadMessage(FUNNY_UPLOAD_MESSAGES[Math.floor(Math.random() * FUNNY_UPLOAD_MESSAGES.length)]);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
       notify.success('Document uploaded. Processing started...');
+      setUploadMessage("");
     },
     onError: (error: any) => {
       notify.error(error.message || 'Upload failed');
+      setUploadMessage("");
     },
   });
 
@@ -92,10 +107,10 @@ const UploadDropzone: React.FC = () => {
           onChange={(e) => handleFiles(Array.from(e.target.files || []))}
         />
 
-        {uploadMutation.isPending && (
+        {uploadMessage && (
           <div className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm flex flex-col items-center justify-center space-y-4 animate-in fade-in duration-300">
              <Loader2 className="h-10 w-10 text-blue-500 animate-spin" />
-             <p className="text-sm font-medium text-blue-400">Uploading to Secure Vault...</p>
+             <p className="text-sm font-medium text-blue-400">{uploadMessage}</p>
           </div>
         )}
       </div>

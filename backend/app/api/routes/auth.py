@@ -9,13 +9,13 @@ from app.db.models.user import User
 from app.db.session import get_db
 from app.repositories.user import UserRepository
 from app.schemas.token import Token
-from app.schemas.user import UserCreate, UserLogin, UserResponse
+from app.schemas.user import UserCreate, UserLogin, UserResponse, AuthResponse
 from app.services.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     user_in: UserCreate,
     db: AsyncSession = Depends(get_db),
@@ -26,10 +26,18 @@ async def register(
     user_repo = UserRepository(db)
     auth_service = AuthService(user_repo)
     user = await auth_service.register_user(user_in)
-    return user
+    
+    # Automatically login after registration
+    tokens = auth_service.create_token_pair(subject=user.id)
+    return AuthResponse(
+        user=UserResponse.model_validate(user),
+        access_token=tokens.access_token,
+        refresh_token=tokens.refresh_token,
+        token_type=tokens.token_type,
+    )
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=AuthResponse)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
@@ -55,7 +63,13 @@ async def login(
             detail="Inactive user",
         )
     
-    return auth_service.create_token_pair(subject=user.id)
+    tokens = auth_service.create_token_pair(subject=user.id)
+    return AuthResponse(
+        user=UserResponse.model_validate(user),
+        access_token=tokens.access_token,
+        refresh_token=tokens.refresh_token,
+        token_type=tokens.token_type,
+    )
 
 
 @router.get("/me", response_model=UserResponse)

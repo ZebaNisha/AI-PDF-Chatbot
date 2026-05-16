@@ -34,10 +34,11 @@ celery_app.conf.update(
     task_soft_time_limit=300, # 5 minutes soft limit
     
     # Queue separation (prep for future)
-    task_routes={
-        "app.worker.tasks.*": {"queue": "ingestion"},
-        "app.worker.cleanup.*": {"queue": "cleanup"},
-    }
+    # Removed for now to ensure default worker picks up tasks
+    # task_routes={
+    #     "app.worker.tasks.*": {"queue": "ingestion"},
+    #     "app.worker.cleanup.*": {"queue": "cleanup"},
+    # }
 )
 
 if __name__ == "__main__":

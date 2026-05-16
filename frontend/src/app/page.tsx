@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ROUTES } from '@/config/constants';
 import UploadDropzone from '@/features/documents/components/UploadDropzone';
-import DocumentList from '@/features/documents/components/DocumentList';
-import { LayoutDashboard, MessageSquare, LogOut, FileText, Sparkles } from 'lucide-react';
+import DocumentLibrary from '@/features/documents/components/DocumentLibrary';
+import { LayoutDashboard, MessageSquare, LogOut, FileText, Sparkles, Layers } from 'lucide-react';
 import { AuthService } from '@/features/auth/services/auth.service';
 
 export default function DashboardPage() {
@@ -104,7 +104,7 @@ export default function DashboardPage() {
               <Layers className="h-5 w-5 text-purple-500" />
               Your Library
             </h3>
-            <DocumentList />
+            <DocumentLibrary />
           </section>
         </div>
       </main>
@@ -112,4 +112,4 @@ export default function DashboardPage() {
   );
 }
 
-import { Layers } from 'lucide-react';
+

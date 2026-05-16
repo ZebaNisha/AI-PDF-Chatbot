@@ -41,24 +41,27 @@ const ChatWindow: React.FC<Props> = ({ sessionId, selectedDocumentIds }) => {
             <div className="mb-6 p-4 bg-blue-600/10 rounded-3xl border border-blue-500/20">
               <Sparkles className="h-12 w-12 text-blue-500" />
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">How can I help you today?</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">The Document Whisperer is IN.</h2>
             <p className="text-gray-400 max-w-md">
-              Ask any question about your uploaded documents. I'll search through them and provide precise answers with citations.
+              Feed me your PDFs and I'll spill their secrets (with citations, because I'm classy). What's on your mind?
             </p>
             
             <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
               {[
-                "What are the key takeaways from this PDF?",
-                "Summarize the second section for me.",
-                "Find any mentions of financial risks.",
-                "How does the author define 'RAG'?"
+                "Give me the 'too long; didn't read' version.",
+                "Is there anything in here I should be worried about?",
+                "Explain this document like I'm 5 (but a smart 5-year-old).",
+                "What's the most interesting fact hidden in these pages?"
               ].map((suggestion) => (
                 <button
                   key={suggestion}
                   onClick={() => sendMessage(suggestion, selectedDocumentIds)}
-                  className="p-4 bg-gray-900/50 hover:bg-gray-800 border border-gray-800 rounded-2xl text-left text-sm text-gray-300 transition-all hover:border-gray-700 active:scale-[0.98]"
+                  className="p-4 bg-gray-900/50 hover:bg-gray-800 border border-gray-800 rounded-2xl text-left text-sm text-gray-300 transition-all hover:border-gray-700 active:scale-[0.98] group"
                 >
-                  {suggestion}
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="h-3 w-3 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {suggestion}
+                  </span>
                 </button>
               ))}
             </div>

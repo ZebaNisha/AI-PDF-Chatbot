@@ -79,18 +79,15 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 async def check_db_connection() -> bool:
     """
-    Verify the database is reachable.
+    Verify the database is reachable with timeout.
 
     Returns:
         True if the connection succeeds, False otherwise.
-
-    Raises:
-        Does NOT raise — logs the error and returns False so the health
-        check endpoint can report degraded status gracefully.
     """
     try:
+        import asyncio
         async with AsyncSessionLocal() as session:
-            await session.execute(text("SELECT 1"))
+            await asyncio.wait_for(session.execute(text("SELECT 1")), timeout=3.0)
         logger.info("database.connection_ok")
         return True
     except Exception as exc:

@@ -110,6 +110,14 @@ def create_app() -> FastAPI:
     app.include_router(documents.router)
     app.include_router(chat.router)
 
+    @app.get("/")
+    async def root():
+        return {
+            "message": "AI PDF Chatbot API is online!",
+            "status": "active",
+            "version": settings.APP_VERSION
+        }
+
     # -----------------------------------------------------------------------
     # Global Exception Handlers
     # -----------------------------------------------------------------------
